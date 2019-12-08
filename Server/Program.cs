@@ -50,7 +50,7 @@ namespace Server
                     Text = message,
                     Ip = e.Ip
                 };
-                // Save received message to the db
+                // Сохранить полученное сообщение в БД
                 SaveMessage(serverMessage);
             };
             var serverTask = server.StartAsync();

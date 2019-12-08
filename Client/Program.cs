@@ -18,6 +18,9 @@ namespace Client
         private const int port = 8888;
         // IP адрес сервера
         private const string server = "127.0.0.1";
+        // Команда завершения работы сервера
+        private const string stopCommand = "Y";
+        // Очередь сообщений
         private static ConcurrentQueue<ClientMessage> queue_ = new ConcurrentQueue<ClientMessage>();
         /// <summary>
         /// Основная программа, для выхода ввести "y" или "Y"
@@ -73,11 +76,11 @@ namespace Client
 
                 }
             });
-            while (messageString.ToUpper() != "Y")
+            while (messageString.ToUpper() != stopCommand)
             {
                 Console.WriteLine("Enter string to send: ");
                 messageString = Console.ReadLine();
-                if (messageString.ToUpper() == "Y")
+                if (messageString.ToUpper() == stopCommand)
                     cancelTokenSource.Cancel();
                 else
                 {
