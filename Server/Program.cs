@@ -22,6 +22,7 @@ namespace Server
         private const string printCommand = "print";
         /// <summary>
         /// Основная программа приложения сервера
+        /// для выхода ввести "y" или "Y"
         /// </summary>
         /// <param name="args"></param>
         /// <returns></returns>
