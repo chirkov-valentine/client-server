@@ -12,11 +12,19 @@ namespace Server
 {
     class Program
     {
+        // Порт, прослушиваемый сервером
         private const int port = 8888;
+        //размер буфера для сообщений
         private const int bufferSize = 2048;
+        // Команда завершения работы сервера
         private const string stopCommand = "Y";
+        // Команда вывода списка полученных сообщений и БД
         private const string printCommand = "print";
-        //private static ConcurrentBag<ServerMessage> bag_ = new ConcurrentBag<ServerMessage>();
+        /// <summary>
+        /// Основная программа приложения сервера
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
         static async Task Main(string[] args)
         {
             CancellationTokenSource cancelTokenSource = new CancellationTokenSource();
@@ -46,17 +54,20 @@ namespace Server
             };
             var serverTask = server.StartAsync();
             string messageString = string.Empty;
-            while (messageString.ToUpper() != "Y")
+            while (messageString.ToUpper() != stopCommand)
             {
                 Console.WriteLine("Enter command: ");
                 messageString = Console.ReadLine();
-                if (messageString.ToUpper() == "Y")
+                if (messageString.ToUpper() == stopCommand)
                     server.Stop();
                 else if (messageString == printCommand)
                     PrintResults();
             }
             await serverTask;
         }   
+        /// <summary>
+        /// Вывод сообщений из БД
+        /// </summary>
         public static void PrintResults()
         {
             using (var dbContext = new ClientServerDbContext())
@@ -73,6 +84,10 @@ namespace Server
             Console.WriteLine();
         }
 
+        /// <summary>
+        /// Сохранение полученного сообщения в БД
+        /// </summary>
+        /// <param name="serverMessage">Сообщение, полученное от клиента</param>
         private static void SaveMessage(Domain.ServerMessage serverMessage)
         {
             using (var dbContext = new Domain.ClientServerDbContext())

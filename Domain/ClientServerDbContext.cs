@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Domain
 {
     /// <summary>
-    /// Db context for sqlite database
+    /// Контекст БД Sqlite
     /// </summary>
     public class ClientServerDbContext : DbContext
     {

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace Server
 {
     /// <summary>
-    /// TCP server asynchronious realization
+    /// Реализация TCP сервера асинхронная
     /// </summary>
     public partial class TcpServer : IDisposable
     {

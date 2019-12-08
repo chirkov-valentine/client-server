@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Domain
 {
     /// <summary>
-    /// Store messages received by server
+    /// Класс сообщений, полученных сервером
     /// </summary>
     public class ServerMessage
     {

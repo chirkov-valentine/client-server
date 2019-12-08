@@ -14,9 +14,16 @@ namespace Client
 {
     class Program
     {
+        // Порт, по которому подключаемся к серверу
         private const int port = 8888;
+        // IP адрес сервера
         private const string server = "127.0.0.1";
         private static ConcurrentQueue<ClientMessage> queue_ = new ConcurrentQueue<ClientMessage>();
+        /// <summary>
+        /// Основная программа, для выхода ввести "y" или "Y"
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
         static async Task Main(string[] args)
         {
             Guid clientId = Guid.NewGuid();
@@ -25,22 +32,20 @@ namespace Client
             string messageString = string.Empty;
             Task task = Task.Run(() =>
             {
-                // Load message, witch is not send
+                // Загружаем из БД неотправленные сообщения
                 LoadMessages();
             
                 while (true)
                 {
-                    // Check if task is canceled
+                    // Проверяем завершен ли таск
                     if (token.IsCancellationRequested)
                     {
-                        // Save all unsended messages to the DB
-                        //SaveMassages(clientId);
                         return;
                     }
                     ClientMessage message;
                     if (queue_.TryDequeue(out message))
                     {
-                        // Try to send message via TCP
+                        // Попытка посылки сообщения
                         using (TcpClient client = new TcpClient())
                         {
                             try
@@ -51,17 +56,19 @@ namespace Client
                                 UTF8Encoding asen = new UTF8Encoding();
                                 byte[] ba = asen.GetBytes(message.Message);
                                 stm.Write(ba, 0, ba.Length);
+                                // Удаляем из БД, если успешно отправили
                                 DeleteMessageFromDb(message.ClientMessageID);
                             }
                             catch (Exception ex)
                             {
-                                // Take the message back to the queue
+                                // Вернуть обратно в очередь
                                 queue_.Enqueue(message);
+                                // Добавляем в БД, если не добавили ранее
                                 AddMessageToDb(message);
                             }
                         }
                     }
-                    // Wait for some time
+                    // Подождать до следующей проверки
                     Thread.Sleep(2000);
 
                 }
@@ -84,6 +91,9 @@ namespace Client
             await task;
         }
 
+        /// <summary>
+        /// Загрузка неотправленных сообщений из БД
+        /// </summary>
         private static void LoadMessages()
         {
             using (var dbContext = new ClientServerDbContext())
@@ -96,23 +106,13 @@ namespace Client
             }
         }
 
-        /*private static void SaveMassages()
-        { 
-            using (var dbContext = new ClientServerDbContext())
-            {
-                var messagesToRemove = dbContext.ClientMessages;
-                dbContext.ClientMessages.RemoveRange(messagesToRemove);
-                foreach(var message in queue_.ToArray())
-                {
-                    dbContext.Add(message);
-                }
-                dbContext.SaveChanges();
-            }
-        }*/
-
+        /// <summary>
+        /// Добавить сообщение в БД
+        /// </summary>
+        /// <param name="clientMessage"></param>
         private static void AddMessageToDb(ClientMessage clientMessage)
         {
-            // Message was already added
+            // Сообщение уже было добавлено
             if (clientMessage.ClientMessageID > 0)
                 return;
             using (var dbContext = new ClientServerDbContext())
@@ -121,7 +121,10 @@ namespace Client
                 dbContext.SaveChanges();
             }
         }
-
+        /// <summary>
+        /// Удалить сообщение из БД
+        /// </summary>
+        /// <param name="clientMessageId"></param>
         private static void DeleteMessageFromDb(int clientMessageId)
         {
             using (var dbContext = new ClientServerDbContext())

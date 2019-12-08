@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Domain
 {
     /// <summary>
-    /// Store unsend messages
+    /// Класс для хранения неотправленных сообщений в БД
     /// </summary>
     public class ClientMessage
     {
